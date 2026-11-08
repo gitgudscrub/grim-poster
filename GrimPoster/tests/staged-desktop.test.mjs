@@ -10,7 +10,7 @@ async function runCase(mode){
   const state={revealCycle:1,stagePromise:null,staged:null,uploading:false,capturePromise:null,pending:capture,config:{enabled:true,autoPost:true}};
   let fetches=0;
   class FormData{ append(){} }
-  const ctx={state,console,FormData,DISCORD_FILE_LIMIT:9_961_472,MOD_NAME:'Grim Poster',UPLOAD_RELAY_URL:'/upload',
+  const ctx={expirePending:async()=>{},recoveryExpired:()=>false,state,console,FormData,DISCORD_FILE_LIMIT:9_961_472,MOD_NAME:'Grim Poster',UPLOAD_RELAY_URL:'/upload',
     isDesktopApp:()=>true,AbortController,setTimeout,clearTimeout,buildMessage:()=> 'Test Grim',
     getConfig:async()=>({autoPost:true}),updatePendingControls(){},toast(){},updateStatusButton(){},
     clearPending:async()=>{state.pending=null;},

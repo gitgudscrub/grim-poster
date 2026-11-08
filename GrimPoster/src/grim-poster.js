@@ -7,6 +7,7 @@
   const DB_NAME = "botc-grim-poster";
   const DB_STORE = "captures";
   const PENDING_KEY = "pending";
+  const RECOVERY_TTL_MS = 24 * 60 * 60 * 1000;
   const DISCORD_FILE_LIMIT = 9.5 * 1024 * 1024;
   const UPLOAD_RELAY_URL = "https://updates.themavryan.com/api/grim-poster/upload";
 
@@ -112,13 +113,32 @@
         const transaction = database.transaction(DB_STORE, mode);
         const store = transaction.objectStore(DB_STORE);
         const request = action(store);
-        request.onsuccess = () => resolve(request.result);
+        transaction.oncomplete = () => resolve(request.result);
+        transaction.onabort = () => reject(transaction.error || new Error("Storage transaction aborted"));
         request.onerror = () => reject(request.error);
         transaction.onerror = () => reject(transaction.error);
       });
     } finally {
       database.close();
     }
+  }
+
+  function recoveryExpired(capture, now = Date.now()) {
+    return !!capture && (!Number.isFinite(capture.capturedAt) ||
+      capture.capturedAt > now || now - capture.capturedAt >= RECOVERY_TTL_MS);
+  }
+
+  async function expirePending() {
+    if (state.uploading || !recoveryExpired(state.pending)) return;
+    // Start deletion before yielding, so a later capture's write is ordered after it.
+    const expired = state.pending;
+    try {
+      await databaseAction("readwrite", (store) => store.delete(PENDING_KEY));
+      if (state.pending === expired) state.pending = null;
+    } catch {
+      // Keep the expired record inaccessible and retry at the next sweep.
+    }
+    updateStatusButton();
   }
 
   async function loadPending() {
@@ -129,11 +149,13 @@
     } catch {
       state.pending = null;
     }
+    await expirePending();
     updateStatusButton();
     return state.pending;
   }
 
   async function persistPending(capture) {
+    if (recoveryExpired(capture)) return;
     state.pending = capture;
     try {
       await databaseAction("readwrite", (store) =>
@@ -1187,7 +1209,8 @@
     if (state.uploading) return false;
     if (!state.config?.enabled) return false;
     if (state.capturePromise) await state.capturePromise;
-    if (!state.pending) {
+    await expirePending();
+    if (!state.pending || recoveryExpired(state.pending)) {
       if (force) toast("There is no pending Grimoire to send.");
       return false;
     }
@@ -1242,6 +1265,7 @@
   }
 
   function downloadPending() {
+    if (recoveryExpired(state.pending)) { void expirePending(); return; }
     if (!state.config?.enabled) return;
     if (!state.pending?.blob) return;
     const filename = state.pending.filename;
@@ -1407,6 +1431,7 @@
     injectStyles();
     createInterface();
     await loadPending();
+    setInterval(() => { void expirePending(); }, 60 * 1000);
     state.config = await getConfig();
     installCloseHandler();
     observeApplication();

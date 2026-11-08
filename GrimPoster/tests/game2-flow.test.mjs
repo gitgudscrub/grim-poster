@@ -22,7 +22,7 @@ async function game2Case(scenario) {
   };
   const state={revealCycle:1,game2Proof:{request_id:'abc',token:'secret'},game2Sending:false,game2PromptCycle:null};
   const sent=[], notice=[];
-  const ctx={document:doc,state,UPLOAD_RELAY_URL:'/upload',toast:(...x)=>notice.push(x),
+  const ctx={expirePending:async()=>{},recoveryExpired:()=>false,document:doc,state,UPLOAD_RELAY_URL:'/upload',toast:(...x)=>notice.push(x),
     fetch:async (url,opts)=>{
       const body=JSON.parse(opts.body); sent.push(body);
       let response;
@@ -72,7 +72,7 @@ async function testPrompt() {
 async function testClose() {
   const state={revealCycle:4, config:{enabled:true},pending:{id:'grim',cycle:4},capturePromise:null};
   const actions=[];let click;
-  const ctx={state,document:{addEventListener(_type,fn){click=fn;}},findRevealPrompt:()=>null,
+  const ctx={expirePending:async()=>{},recoveryExpired:()=>false,state,document:{addEventListener(_type,fn){click=fn;}},findRevealPrompt:()=>null,
     revealHasStarted:()=>true,clearPending:async()=>{},persistPending:async x=>{state.pending=x;},
     showGame2Prompt:cycle=>actions.push(['prompt',cycle]),uploadPending:async force=>{actions.push(['post',force]);return true;},
     toast(){},setTimeout(fn){queueMicrotask(fn);}};
@@ -89,7 +89,7 @@ async function testUpload() {
   const actions=[];
   const state={revealCycle:1,uploading:false,config:{enabled:true},pending:{id:'grim',cycle:1,blob:{size:10},filename:'grim.png'},
     stagePromise:Promise.resolve(),staged:{cycle:1,id:'stage',token:'stage-token'}};
-  const ctx={state,DISCORD_FILE_LIMIT:99e6,isDesktopApp:()=>true,updatePendingControls(){},toast(){},console,
+  const ctx={expirePending:async()=>{},recoveryExpired:()=>false,state,DISCORD_FILE_LIMIT:99e6,isDesktopApp:()=>true,updatePendingControls(){},toast(){},console,
     buildMessage:()=> 'text',commitStaged:async()=>({ok:true,game2_request_id:'id1',game2_token:'proof1'}),
     relayRequest:async()=>{throw Error('Unexpected fallback')},clearPending:async()=>{state.pending=null;},updateStatusButton(){}};
   vm.createContext(ctx);

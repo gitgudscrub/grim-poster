@@ -39,3 +39,7 @@ Signing-provider approval is pending. This repository and its executable are not
 ## Licence
 
 MIT, copyright 2026 Ryan Mavin. This is the proposed licence for this source preparation; the maintainer should confirm it before making the repository public. BOTC application code and compressed application bundles are excluded. The game's names and other third-party marks remain their respective owners' property.
+
+### Local recovery expiry
+
+The recovery-expiry update expires pending local screenshots 24 hours after capture. Checks run on startup, every minute while open, and before sending or downloading. Closed or suspended apps clean up when they next run. Active uploads may finish first; failed storage deletion is retried. Invalid or missing capture times expire immediately. Manually downloaded files and Discord posts are not deleted.
