@@ -1,0 +1,25 @@
+{
+  "formatVersion": 1,
+  "appVersion": "3.58.0",
+  "architecture": "x64",
+  "modVersion": "0.2.0",
+  "assetPath": "/assets/index-Bx6UT26l.js",
+  "expectedOriginalSha256": "2dc605de64384646d77e83aa40bea4355ba84d3b42a3c5e77f300395d5f2fe62",
+  "expectedPatchedSha256": "2dc605de64384646d77e83aa40bea4355ba84d3b42a3c5e77f300395d5f2fe62",
+  "supportedUpgradeSha256": [
+    "41d6c7ec7773556677d51521246280d98ca1533c83b30d54275115e09fe470b2",
+    "f74dc85ed0ed14d76099bc6193c0af9eb25c4cbf5cebefc71e4f656849c448e0",
+    "a025154b7adb36d86ff2f2ec1108aced2ab50f55ca7974b2ce8af7abc4e6192c"
+  ],
+  "expectedOriginalBundleSha256": "dd54048a042511d61a738175ef6397f9d9055cb0e5db886e337a888abb8c15e4",
+  "assetDataOffset": 15147190,
+  "assetCapacity": 227379,
+  "dataLengthOffsets": [
+    42050416
+  ],
+  "supportedPatchPayloads": [],
+  "supportedPreviousOfficialSha256": [
+    "efc0abc595ac889d2cb33d11224313cfe83a97da4fc75b76cf2d25ac7c36e843"
+  ],
+  "patchVerification": "runtime-injection"
+}
