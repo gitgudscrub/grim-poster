@@ -1,16 +1,14 @@
 package main
 
-// Crash diagnostics never contain screenshots or raw log text in reports.
+// Diagnostics stay on this device. The public app has no diagnostic upload path.
 // The local detailed log is private to the current user's AppData.
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -19,7 +17,6 @@ import (
 	"time"
 )
 
-const diagnosticsURL = "https://updates.themavryan.com/api/grim-poster/diagnostics"
 const diagnosticsFile = "diagnostics.jsonl"
 
 var diagMutex sync.Mutex
@@ -194,55 +191,4 @@ func lastErrorRecord(path string) (diagnosticRecord, error) {
 		return record, nil
 	}
 	return diagnosticRecord{}, errors.New("no recent errors or crashes (last seven days)")
-}
-func safeRecord(r diagnosticRecord) diagnosticRecord {
-	// Only allow known categorical data; never ship arbitrary log lines or paths.
-	permitted := map[string]bool{
-		"launcher_start": true, "launcher_start_failed": true, "operation_failed": true,
-		"patch_install_failed": true, "companion_launch_failed": true, "companion_spawn_failed": true,
-		"companion_exited": true, "uncaught_panic": true,
-	}
-	if !permitted[r.Event] {
-		r.Event = "other_event"
-	}
-	categories := map[string]bool{"none": true, "permission_denied": true, "access_denied": true, "file_in_use": true, "path_missing": true, "network_timeout": true, "integrity_failure": true, "missing_file": true, "other_error": true}
-	if !categories[r.Category] {
-		r.Category = "other_error"
-	}
-	if r.Result != "ok" && r.Result != "error" {
-		r.Result = "error"
-	}
-	r.Version = bootstrapVersion
-	return r
-}
-func sendDiagnostic(root string) error {
-	record, err := lastErrorRecord(filepath.Join(diagnosticDirectory(), diagnosticsFile))
-	if err != nil {
-		return fmt.Errorf("no recent failure found: %w", err)
-	}
-	record = safeRecord(record)
-	b, err := json.Marshal(record)
-	if err != nil {
-		return err
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), 12*time.Second)
-	defer cancel()
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, diagnosticsURL, bytes.NewReader(b))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-Grim-Diagnostics-Consent", "yes")
-	req.Header.Set("User-Agent", "GrimPoster-Diagnostics/"+bootstrapVersion)
-	client := httpClient()
-	res, err := client.Do(req)
-	if err != nil {
-		return fmt.Errorf("could not contact support relay: %w", err)
-	}
-	defer res.Body.Close()
-	if res.StatusCode != http.StatusAccepted {
-		return fmt.Errorf("support relay returned HTTP %d; local logs were not deleted", res.StatusCode)
-	}
-	recordDiagnostic("report_sent", nil)
-	return nil
 }

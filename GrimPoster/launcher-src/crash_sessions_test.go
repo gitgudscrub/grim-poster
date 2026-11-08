@@ -65,7 +65,5 @@ func TestReportSelectsLastFailure(t *testing.T) {
 	if err != nil || r.Event != "capture_failed" {
 		t.Fatalf("selected %v %v", r, err)
 	}
-	if safeRecord(r).Event != "other_event" {
-		t.Fatal("should map unsupported server events to other_event")
-	}
+
 }

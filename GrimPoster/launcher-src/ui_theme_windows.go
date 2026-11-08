@@ -237,7 +237,7 @@ func (t *nativeTheme) drawButton(item uintptr) {
 		fill = rgb(44, 38, 65)
 		edge = colBorder
 	}
-	if id == idRefresh || id == idOfficial || id == idLogs || id == idSendReport || id == idMode {
+	if id == idRefresh || id == idOfficial || id == idLogs || id == idMode {
 		fill = colDetail
 		edge = colBorder
 		text = colSecondary

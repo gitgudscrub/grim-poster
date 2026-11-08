@@ -28,9 +28,9 @@ The included GitHub Actions workflow builds an unsigned downloadable artifact. I
 
 ## Privacy and services
 
-Grim Poster connects to `updates.themavryan.com` for grimoire staging/posting, Game 2 requests and optional diagnostic submissions. The capture workflow can stage a grimoire image on the relay before final publication. The reference relay holds staged images in memory with an expiry. Successful posts go to the server-configured Discord destination. Review these flows before distributing a fork; the current service is operated for Sharktower.
+Grim Poster connects to `updates.themavryan.com` for grimoire staging/posting, Game 2 requests. The capture workflow can stage a grimoire image on the relay before final publication. The reference relay holds staged images in memory with an expiry. Successful posts go to the server-configured Discord destination. Review these flows before distributing a fork; the current service is operated for Sharktower.
 
-Diagnostic submission requires confirmation in the manager. Local logs are kept under `%LOCALAPPDATA%\\Programs\\Grim Poster\\logs`. Game/account data is managed by BOTC. The capture listener binds to loopback and accepts the app origin. The companion enables a local WebView2 debugging endpoint for its game session. This endpoint is not a boundary against other local processes.
+The public desktop app does not submit diagnostic reports. The manager retains View logs for local troubleshooting. The reference relay still includes a legacy diagnostic endpoint used for maintainer testing; removing desktop submission does not disable that server endpoint or older clients. Local logs are kept under `%LOCALAPPDATA%\\Programs\\Grim Poster\\logs`. Game/account data is managed by BOTC. The capture listener binds to loopback and accepts the app origin. The companion enables a local WebView2 debugging endpoint for its game session. This endpoint is not a boundary against other local processes.
 
 ## Code signing policy
 

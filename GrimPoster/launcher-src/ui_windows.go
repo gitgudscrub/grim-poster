@@ -50,7 +50,6 @@ const (
 	idRefresh        = 104
 	idOfficial       = 105
 	idLogs           = 106
-	idSendReport     = 107
 	idMode           = 108
 	idUninstall      = 109
 )
@@ -255,8 +254,7 @@ func launchManager(root, desktop string, first bool) error {
 	ui.button(idLaunch, "Launch BOTC with Grim Poster", 30, 446, 759, 56)
 	ui.button(idRefresh, "Refresh", 30, 516, 111, 38)
 	ui.button(idOfficial, "Official releases", 153, 516, 149, 38)
-	ui.button(idLogs, "View logs", 314, 516, 100, 38)
-	ui.button(idSendReport, "Send diagnostics", 426, 516, 188, 38)
+	ui.button(idLogs, "View logs", 314, 516, 300, 38)
 	ui.button(idUninstall, "Uninstall Grim Poster", 626, 516, 163, 38)
 	ui.button(idMode, "Capture: Adaptive", 530, 569, 250, 35)
 	ui.label("mode", "Detecting capture mode...", 48, 576, 460, 30)
@@ -267,7 +265,7 @@ func launchManager(root, desktop string, first bool) error {
 	ui.refresh()
 	updateCrashStage("native_manager_running")
 	if recoveredPreviousCrash() {
-		showMessage(ui.hwnd, "Grim Poster - Recovery", "A previous Grim Poster process ended unexpectedly.\n\nA recovery report is saved under View logs as last-unexpected-exit.txt.\n\nYou can review it and choose Send diagnostics if you want to share a short, privacy-filtered error summary. No logs are sent automatically.", mbInformation)
+		showMessage(ui.hwnd, "Grim Poster - Recovery", "A previous Grim Poster process ended unexpectedly.\n\nA recovery report is saved under View logs as last-unexpected-exit.txt.\n\nYou can review it using View logs. Diagnostic logs stay on this device and are not uploaded by Grim Poster.", mbInformation)
 	}
 	recordDiagnostic("native_gui_message_loop_entered", nil)
 	var msg message
@@ -418,7 +416,6 @@ func (ui *nativeUI) onRefresh() {
 	enable(ui.buttons[idRefresh], true)
 	enable(ui.buttons[idOfficial], true)
 	enable(ui.buttons[idLogs], true)
-	enable(ui.buttons[idSendReport], true)
 	enable(ui.buttons[idUninstall], true)
 	ui.updateModeUI(s)
 	if s.Error != "" {
@@ -523,11 +520,6 @@ func (ui *nativeUI) command(id int) {
 		dir := diagnosticDirectory()
 		os.MkdirAll(dir, 0700)
 		exec.Command("explorer.exe", dir).Start()
-	case idSendReport:
-		if !confirm(ui.hwnd, "Send the latest structured diagnostic to the Sharktower support relay?\n\nIncludes: launcher version, event type, error category, and timestamp.\nDoes NOT send: screenshots, account names, file paths, tokens, Discord messages or raw log files.\n\nChoose No to keep diagnostics local.") {
-			return
-		}
-		ui.busyAction("Sending diagnostic report with your permission...", func() error { return sendDiagnostic(ui.root) })
 	case idUninstall:
 		if processExists("botc-app.exe") {
 			showMessage(ui.hwnd, "Grim Poster", "Close BOTC Online before uninstalling Grim Poster. The game will remain installed.", mbInformation)
@@ -592,7 +584,7 @@ func (ui *nativeUI) launchBOTC(automatic bool) {
 	mode, err := startAdaptiveCompanion(ui.root, ui.desktop, s.Installed.Version)
 	if err != nil {
 		recordDiagnostic("companion_launch_failed", err)
-		showMessage(ui.hwnd, "Grim Poster", "Could not start the companion:\n"+err.Error()+"\n\nYou can change capture mode in the manager and use View logs or Send diagnostics.", mbError)
+		showMessage(ui.hwnd, "Grim Poster", "Could not start the companion:\n"+err.Error()+"\n\nUse View logs in the manager to review the local troubleshooting details.", mbError)
 		return
 	}
 	recordDiagnostic("companion_started_"+mode, nil)
